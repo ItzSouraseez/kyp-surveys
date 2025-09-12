@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testSurveySubmit()">Test Survey Submit</button>
+    <div id="output"></div>
+
+    <script>
+        async function testLogin() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'admin',
+                        password: 'admin_kyp@369'
+                    }),
+                });
+
+                const data = await response.json();
+                document.getElementById('output').innerHTML = `
+                    <h3>Login Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                console.log('Login response:', data);
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('output').innerHTML = `<p>Login Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testSurveySubmit() {
+            try {
+                const response = await fetch('/api/survey/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        responses: [
+                            { questionId: 1, answer: 'test answer' }
+                        ]
+                    }),
+                });
+
+                const data = await response.json();
+                document.getElementById('output').innerHTML += `
+                    <h3>Survey Submit Response:</h3>
+                    <p>Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                console.log('Survey submit response:', data);
+            } catch (error) {
+                console.error('Survey submit error:', error);
+                document.getElementById('output').innerHTML += `<p>Survey Submit Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

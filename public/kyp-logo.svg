@@ -1,0 +1,40 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background circle -->
+  <circle cx="250" cy="250" r="250" fill="#2a1b3d"/>
+  
+  <!-- Outer white ring -->
+  <circle cx="250" cy="250" r="180" fill="none" stroke="white" stroke-width="8"/>
+  
+  <!-- Inner white ring -->
+  <circle cx="250" cy="250" r="165" fill="none" stroke="white" stroke-width="3"/>
+  
+  <!-- Yellow circle -->
+  <circle cx="250" cy="250" r="155" fill="#ffd700"/>
+  
+  <!-- Fork on left -->
+  <g transform="translate(150, 200)">
+    <rect x="0" y="0" width="4" height="80" fill="#2a1b3d"/>
+    <rect x="-2" y="0" width="2" height="15" fill="#2a1b3d"/>
+    <rect x="4" y="0" width="2" height="15" fill="#2a1b3d"/>
+    <rect x="-4" y="0" width="2" height="10" fill="#2a1b3d"/>
+    <rect x="6" y="0" width="2" height="10" fill="#2a1b3d"/>
+  </g>
+  
+  <!-- Knife on right -->
+  <g transform="translate(350, 200)">
+    <rect x="0" y="0" width="3" height="100" fill="#2a1b3d"/>
+    <polygon points="0,0 3,0 6,-8 -3,-8" fill="#2a1b3d"/>
+  </g>
+  
+  <!-- Text "Know" -->
+  <text x="180" y="200" font-family="Arial Black, sans-serif" font-size="42" font-weight="900" fill="#2a1b3d" transform="rotate(-5 180 200)">Know</text>
+  
+  <!-- Text "Your" -->
+  <text x="180" y="250" font-family="Arial Black, sans-serif" font-size="42" font-weight="900" fill="#2a1b3d" transform="rotate(-5 180 250)">Your</text>
+  
+  <!-- Text "Plate" -->
+  <text x="180" y="300" font-family="Arial Black, sans-serif" font-size="42" font-weight="900" fill="#2a1b3d" transform="rotate(-5 180 300)">Plate</text>
+  
+  <!-- Exclamation mark -->
+  <text x="380" y="280" font-family="Arial Black, sans-serif" font-size="60" font-weight="900" fill="#2a1b3d" transform="rotate(15 380 280)">!</text>
+</svg>
