@@ -129,7 +129,7 @@ export default function Login() {
 
           <div style={{ textAlign: 'center' }}>
             <p style={{ color: 'var(--dark-gray)' }}>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" style={{ color: 'var(--primary-black)', fontWeight: '600' }}>
                 Register here
               </Link>
