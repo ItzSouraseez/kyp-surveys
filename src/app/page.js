@@ -287,7 +287,7 @@ export default function Home() {
             About Know Your Plate
           </h2>
           <p style={{ fontSize: '16px', lineHeight: '1.8', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-            We`&apos;`re revolutionizing the dining experience by centralizing offline dine-in restaurants with a focus on 
+            We're revolutionizing the dining experience by centralizing offline dine-in restaurants with a focus on 
             healthcare and nutrition. Our mission is to provide transparency in food choices and help people make 
             informed decisions about what they eat.
           </p>

@@ -75,7 +75,7 @@ export default function ThankYou() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ marginRight: '12px' }}>🎲</span>
-                <span>You`&apos;`re entered in the lucky draw</span>
+                <span>You're entered in the lucky draw</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                 <span style={{ marginRight: '12px' }}>📧</span>
@@ -99,7 +99,7 @@ export default function ThankYou() {
           </h3>
           <p style={{ fontSize: '16px', lineHeight: '1.6' }}>
             Your feedback will help us create better dining experiences with QR menus, nutritional transparency, 
-            and personalized recommendations. Together, we`&apos;`re revolutionizing how people interact with food and restaurants.
+            and personalized recommendations. Together, we're revolutionizing how people interact with food and restaurants.
           </p>
         </div>
       </div>

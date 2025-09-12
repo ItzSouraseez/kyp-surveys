@@ -79,6 +79,7 @@ function RegisterForm() {
     });
   };
 
+
   return (
 
       <div className="container" style={{ paddingTop: '40px', maxWidth: '500px' }}>
@@ -114,6 +115,7 @@ function RegisterForm() {
               {success}
             </div>
           )}
+
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -201,7 +203,7 @@ function RegisterForm() {
               🎁 After Registration:
             </h3>
             <ul style={{ fontSize: '14px', color: 'var(--dark-gray)', paddingLeft: '20px' }}>
-              <li>You`&apos;`ll get your unique referral code</li>
+              <li>You'll get your unique referral code</li>
               <li>Complete the survey to enter the lucky draw</li>
               <li>Share your referral code with friends</li>
               <li>Win ₹500 Amazon voucher!</li>

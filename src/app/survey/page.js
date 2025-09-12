@@ -14,6 +14,9 @@ export default function Survey() {
   const [success, setSuccess] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [surveyEnded, setSurveyEnded] = useState(false);
+  const [surveyCompleted, setSurveyCompleted] = useState(false);
+  const [completionData, setCompletionData] = useState(null);
+  const [referralCode, setReferralCode] = useState('');
   const router = useRouter();
 
   const questionsPerPage = 3;
@@ -28,9 +31,58 @@ export default function Survey() {
 
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
+    checkSurveyStatus();
     checkTimerStatus();
     fetchQuestions();
   }, []);
+
+  const checkSurveyStatus = async () => {
+    try {
+      const response = await fetch('/api/survey/status', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (response.ok && data.hasCompleted) {
+        setSurveyCompleted(true);
+        setCompletionData(data);
+        // Fetch user's referral code
+        fetchReferralCode();
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking survey status:', error);
+    }
+  };
+
+  const fetchReferralCode = async () => {
+    try {
+      const response = await fetch('/api/user/referral', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        setReferralCode(data.referralCode);
+      }
+    } catch (error) {
+      console.error('Error fetching referral code:', error);
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  const getReferralLink = () => {
+    return `${window.location.origin}/register?ref=${referralCode}`;
+  };
 
   const checkTimerStatus = async () => {
     try {
@@ -264,14 +316,167 @@ export default function Survey() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '4px solid var(--light-gray)',
-          borderTop: '4px solid var(--primary-yellow)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }}></div>
+        <div>Loading survey...</div>
+      </div>
+    );
+  }
+
+  if (surveyCompleted) {
+    return (
+      <div>
+        {/* Navigation */}
+        <nav className="navbar">
+          <div className="container navbar-content">
+            <Link href="/" className="navbar-brand">
+              <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+            </Link>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+              <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>
+                {user ? 'Dashboard' : 'Login'}
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        <div className="container" style={{ paddingTop: '40px', maxWidth: '600px' }}>
+          <div className="card">
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '20px' }}>✅</div>
+              <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '20px', color: 'var(--primary-black)' }}>
+                Survey Already Completed!
+              </h1>
+              <p style={{ fontSize: '18px', color: 'var(--dark-gray)', marginBottom: '20px' }}>
+                You have already completed the Know Your Plate survey.
+              </p>
+              <div style={{
+                backgroundColor: 'var(--light-yellow)',
+                border: '2px solid var(--primary-yellow)',
+                borderRadius: '8px',
+                padding: '20px',
+                marginBottom: '30px'
+              }}>
+                <p style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
+                  📅 Completed on: {new Date(completionData?.submissionDate).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+                {completionData?.isEligibleForDraw && (
+                  <p style={{ fontSize: '16px', color: 'var(--success-green)' }}>
+                    🎁 You are eligible for the lucky draw!
+                  </p>
+                )}
+              </div>
+              <p style={{ fontSize: '16px', color: 'var(--dark-gray)', marginBottom: '30px' }}>
+                Each user can only complete the survey once to ensure fair participation in the lucky draw.
+              </p>
+              {referralCode && (
+                <div style={{
+                  backgroundColor: 'var(--light-yellow)',
+                  border: '2px solid var(--primary-yellow)',
+                  borderRadius: '8px',
+                  padding: '20px',
+                  marginBottom: '20px'
+                }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: 'var(--primary-black)' }}>
+                    🎁 Share & Earn Rewards
+                  </h3>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--dark-gray)', display: 'block', marginBottom: '5px' }}>
+                      Your Referral Code:
+                    </label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={referralCode}
+                        readOnly
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          border: '2px solid var(--medium-gray)',
+                          borderRadius: '6px',
+                          backgroundColor: 'white',
+                          fontSize: '16px',
+                          fontWeight: '600'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(referralCode)}
+                        style={{
+                          padding: '10px 15px',
+                          backgroundColor: 'var(--primary-yellow)',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: '15px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--dark-gray)', display: 'block', marginBottom: '5px' }}>
+                      Your Referral Link:
+                    </label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={typeof window !== 'undefined' ? getReferralLink() : ''}
+                        readOnly
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          border: '2px solid var(--medium-gray)',
+                          borderRadius: '6px',
+                          backgroundColor: 'white',
+                          fontSize: '14px'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(getReferralLink())}
+                        style={{
+                          padding: '10px 15px',
+                          backgroundColor: 'var(--primary-yellow)',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '14px', color: 'var(--dark-gray)', marginBottom: '0' }}>
+                    Share your referral code or link with friends to help them join and earn rewards!
+                  </p>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link href="/" className="btn btn-primary">
+                  Back to Home
+                </Link>
+                <Link href="/thank-you" className="btn" style={{
+                  backgroundColor: 'var(--light-gray)',
+                  color: 'var(--primary-black)',
+                  border: '2px solid var(--medium-gray)'
+                }}>
+                  View Thank You Page
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
