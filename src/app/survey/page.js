@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Toast from '../../components/Toast';
 
 export default function Survey() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,8 @@ export default function Survey() {
   const [surveyCompleted, setSurveyCompleted] = useState(false);
   const [completionData, setCompletionData] = useState(null);
   const [referralCode, setReferralCode] = useState('');
+  const [referralCount, setReferralCount] = useState(0);
+  const [toast, setToast] = useState({ show: false, message: '' });
   const router = useRouter();
 
   const questionsPerPage = 3;
@@ -46,8 +49,8 @@ export default function Survey() {
       if (response.ok && data.hasCompleted) {
         setSurveyCompleted(true);
         setCompletionData(data);
-        // Fetch user's referral code
-        fetchReferralCode();
+        // Fetch user's referral data
+        fetchReferralData();
         setLoading(false);
         return;
       }
@@ -56,27 +59,30 @@ export default function Survey() {
     }
   };
 
-  const fetchReferralCode = async () => {
+  const fetchReferralData = async () => {
     try {
-      const response = await fetch('/api/user/referral', {
+      const response = await fetch('/api/user/referrals', {
         credentials: 'include'
       });
       const data = await response.json();
       
       if (response.ok) {
         setReferralCode(data.referralCode);
+        setReferralCount(data.referralCount);
       }
     } catch (error) {
-      console.error('Error fetching referral code:', error);
+      console.error('Error fetching referral data:', error);
     }
   };
 
-  const copyToClipboard = async (text) => {
+  const copyToClipboard = async (text, type = 'code') => {
     try {
       await navigator.clipboard.writeText(text);
-      // You could add a toast notification here
+      const message = type === 'code' ? 'Referral code copied!' : 'Referral link copied!';
+      setToast({ show: true, message });
     } catch (err) {
       console.error('Failed to copy: ', err);
+      setToast({ show: true, message: 'Failed to copy. Please try again.' });
     }
   };
 
@@ -385,6 +391,18 @@ export default function Survey() {
                     🎁 Share & Earn Rewards
                   </h3>
                   
+                  <div style={{ 
+                    backgroundColor: 'white', 
+                    padding: '12px', 
+                    borderRadius: '6px', 
+                    marginBottom: '15px',
+                    border: '1px solid var(--medium-gray)'
+                  }}>
+                    <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary-black)', margin: '0' }}>
+                      📊 Your Referrals: <span style={{ color: 'var(--primary-yellow)' }}>{referralCount}</span> people joined
+                    </p>
+                  </div>
+                  
                   <div style={{ marginBottom: '15px' }}>
                     <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--dark-gray)', display: 'block', marginBottom: '5px' }}>
                       Your Referral Code:
@@ -406,7 +424,7 @@ export default function Survey() {
                       />
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(referralCode)}
+                        onClick={() => copyToClipboard(referralCode, 'code')}
                         style={{
                           padding: '10px 15px',
                           backgroundColor: 'var(--primary-yellow)',
@@ -441,7 +459,7 @@ export default function Survey() {
                       />
                       <button
                         type="button"
-                        onClick={() => copyToClipboard(getReferralLink())}
+                        onClick={() => copyToClipboard(getReferralLink(), 'link')}
                         style={{
                           padding: '10px 15px',
                           backgroundColor: 'var(--primary-yellow)',
@@ -477,6 +495,12 @@ export default function Survey() {
             </div>
           </div>
         </div>
+        <Toast 
+          message={toast.message}
+          isVisible={toast.show}
+          onClose={() => setToast({ show: false, message: '' })}
+          type="success"
+        />
       </div>
     );
   }
@@ -526,8 +550,8 @@ export default function Survey() {
       {/* Navigation */}
       <nav className="navbar">
         <div className="container navbar-content">
-          <Link href="/" className="navbar-brand">
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+          <Link href="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: 'auto' }} />
           </Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <span style={{ color: 'var(--primary-yellow)' }}>

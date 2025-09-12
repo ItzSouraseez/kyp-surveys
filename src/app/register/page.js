@@ -3,10 +3,12 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Toast from '../../components/Toast';
 
 // Component that uses useSearchParams - must be wrapped in Suspense
 function RegisterForm() {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -15,6 +17,7 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '' });
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -49,6 +52,7 @@ function RegisterForm() {
         },
         credentials: 'include',
         body: JSON.stringify({
+          name: formData.name,
           email: formData.email,
           password: formData.password,
           referredBy: formData.referredBy || null
@@ -81,7 +85,7 @@ function RegisterForm() {
 
 
   return (
-
+    <div>
       <div className="container" style={{ paddingTop: '40px', maxWidth: '500px' }}>
         <div className="card">
           <h1 style={{ fontSize: '32px', fontWeight: '700', textAlign: 'center', marginBottom: '30px' }}>
@@ -118,6 +122,19 @@ function RegisterForm() {
 
 
           <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                className="form-input"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                placeholder="Enter your full name"
+              />
+            </div>
+
             <div className="form-group">
               <label className="form-label">Email Address</label>
               <input
@@ -211,6 +228,13 @@ function RegisterForm() {
           </div>
         </div>
       </div>
+      <Toast 
+        message={toast.message}
+        isVisible={toast.show}
+        onClose={() => setToast({ show: false, message: '' })}
+        type="success"
+      />
+    </div>
   );
 }
 
@@ -236,8 +260,8 @@ export default function Register() {
       {/* Navigation */}
       <nav className="navbar">
         <div className="container navbar-content">
-          <Link href="/" className="navbar-brand">
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+          <Link href="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: 'auto' }} />
           </Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>

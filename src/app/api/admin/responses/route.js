@@ -15,6 +15,7 @@ export async function GET(request) {
       db.all(`
         SELECT 
           u.id as user_id,
+          u.name,
           u.email,
           u.referral_code,
           u.referred_by,
@@ -40,6 +41,7 @@ export async function GET(request) {
       if (!groupedResponses[row.user_id]) {
         groupedResponses[row.user_id] = {
           userId: row.user_id,
+          name: row.name,
           email: row.email,
           referralCode: row.referral_code,
           referredBy: row.referred_by,

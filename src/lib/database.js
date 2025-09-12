@@ -9,6 +9,7 @@ db.serialize(() => {
   // Users table
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     referral_code TEXT UNIQUE NOT NULL,
@@ -55,8 +56,8 @@ db.serialize(() => {
   )`);
 
   // Insert default admin user
-  db.run(`INSERT OR IGNORE INTO users (email, password, referral_code, is_admin) 
-          VALUES ('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN001', TRUE)`);
+  db.run(`INSERT OR IGNORE INTO users (name, email, password, referral_code, is_admin) 
+          VALUES ('Admin User', 'admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN001', TRUE)`);
 
   // Insert default survey questions
   const questions = [

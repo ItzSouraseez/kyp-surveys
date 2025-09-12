@@ -4,10 +4,10 @@ import { hashPassword, generateReferralCode } from '../../../../lib/auth';
 
 export async function POST(request) {
   try {
-    const { email, password, referredBy } = await request.json();
+    const { name, email, password, referredBy } = await request.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: 'Name, email and password are required' }, { status: 400 });
     }
 
     // Check if user already exists
@@ -29,8 +29,8 @@ export async function POST(request) {
     // Insert new user
     const userId = await new Promise((resolve, reject) => {
       db.run(
-        'INSERT INTO users (email, password, referral_code, referred_by) VALUES (?, ?, ?, ?)',
-        [email, hashedPassword, referralCode, referredBy || null],
+        'INSERT INTO users (name, email, password, referral_code, referred_by) VALUES (?, ?, ?, ?, ?)',
+        [name, email, hashedPassword, referralCode, referredBy || null],
         function(err) {
           if (err) reject(err);
           else resolve(this.lastID);

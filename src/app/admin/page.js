@@ -224,7 +224,7 @@ export default function AdminDashboard() {
   const exportToCSV = () => {
     if (responses.length === 0) return;
 
-    const headers = ['User Email', 'Referral Code', 'Referred By', 'Submitted At'];
+    const headers = ['User Name', 'User Email', 'Referral Code', 'Referred By', 'Submitted At'];
     const allQuestions = [...new Set(responses.flatMap(r => r.responses.map(resp => resp.question)))];
     headers.push(...allQuestions);
 
@@ -232,6 +232,7 @@ export default function AdminDashboard() {
       headers.join(','),
       ...responses.map(response => {
         const row = [
+          response.name,
           response.email,
           response.referralCode,
           response.referredBy || '',
@@ -400,6 +401,7 @@ export default function AdminDashboard() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
                   <thead>
                     <tr style={{ backgroundColor: 'var(--light-yellow)' }}>
+                      <th style={{ padding: '16px', textAlign: 'left', borderBottom: '2px solid var(--primary-yellow)', fontWeight: '600' }}>Name</th>
                       <th style={{ padding: '16px', textAlign: 'left', borderBottom: '2px solid var(--primary-yellow)', fontWeight: '600' }}>Email</th>
                       <th style={{ padding: '16px', textAlign: 'left', borderBottom: '2px solid var(--primary-yellow)', fontWeight: '600' }}>Referral Code</th>
                       <th style={{ padding: '16px', textAlign: 'left', borderBottom: '2px solid var(--primary-yellow)', fontWeight: '600' }}>Referred By</th>
@@ -410,6 +412,7 @@ export default function AdminDashboard() {
                   <tbody>
                     {responses.map((response, index) => (
                       <tr key={index} style={{ borderBottom: '1px solid var(--light-gray)' }}>
+                        <td style={{ padding: '16px', fontWeight: '600' }}>{response.name}</td>
                         <td style={{ padding: '16px' }}>{response.email}</td>
                         <td style={{ padding: '16px', fontFamily: 'monospace', fontWeight: 'bold' }}>{response.referralCode}</td>
                         <td style={{ padding: '16px' }}>{response.referredBy || '-'}</td>
