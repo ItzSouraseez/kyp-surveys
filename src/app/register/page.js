@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Register() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function RegisterForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -79,20 +80,6 @@ export default function Register() {
   };
 
   return (
-    <div>
-      {/* Navigation */}
-      <nav className="navbar">
-        <div className="container navbar-content">
-          <Link href="/" className="navbar-brand">
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
-          </Link>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>
-              Login
-            </Link>
-          </div>
-        </div>
-      </nav>
 
       <div className="container" style={{ paddingTop: '40px', maxWidth: '500px' }}>
         <div className="card">
@@ -222,6 +209,45 @@ export default function Register() {
           </div>
         </div>
       </div>
+  );
+}
+
+// Loading fallback component
+function RegisterLoading() {
+  return (
+    <div className="container" style={{ paddingTop: '40px', maxWidth: '500px' }}>
+      <div className="card">
+        <h1 style={{ fontSize: '32px', fontWeight: '700', textAlign: 'center', marginBottom: '30px' }}>
+          Create Your Account
+        </h1>
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Register() {
+  return (
+    <div>
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="container navbar-content">
+          <Link href="/" className="navbar-brand">
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+          </Link>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>
+              Login
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <Suspense fallback={<RegisterLoading />}>
+        <RegisterForm />
+      </Suspense>
     </div>
   );
 }
