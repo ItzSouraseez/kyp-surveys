@@ -334,7 +334,7 @@ export default function Survey() {
         <nav className="navbar">
           <div className="container navbar-content">
             <Link href="/" className="navbar-brand">
-              <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+              <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
             </Link>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
               <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>
@@ -512,7 +512,7 @@ export default function Survey() {
         <nav className="navbar">
           <div className="container navbar-content">
             <Link href="/" className="navbar-brand">
-              <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+              <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
             </Link>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
               <span style={{ color: 'var(--primary-yellow)' }}>

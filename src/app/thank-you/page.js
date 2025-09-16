@@ -19,7 +19,7 @@ export default function ThankYou() {
       <nav className="navbar">
         <div className="container navbar-content">
           <Link href="/" className="navbar-brand">
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
           </Link>
         </div>
       </nav>

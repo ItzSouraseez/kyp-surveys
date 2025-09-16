@@ -285,7 +285,7 @@ export default function AdminDashboard() {
       <nav className="navbar">
         <div className="container navbar-content">
           <Link href="/" className="navbar-brand">
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '40px', width: 'auto' }} />
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
             <span style={{ marginLeft: '10px', color: 'var(--primary-yellow)' }}>Admin</span>
           </Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

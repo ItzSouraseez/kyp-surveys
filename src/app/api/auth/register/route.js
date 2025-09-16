@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/database';
+import { db } from '../../../../lib/firebase';
+import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { hashPassword, generateReferralCode } from '../../../../lib/auth';
 
 export async function POST(request) {
@@ -11,14 +12,10 @@ export async function POST(request) {
     }
 
     // Check if user already exists
-    const existingUser = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM users WHERE email = ?', [email], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const userQuery = query(collection(db, 'users'), where('email', '==', email));
+    const existingUserSnapshot = await getDocs(userQuery);
 
-    if (existingUser) {
+    if (!existingUserSnapshot.empty) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
@@ -27,21 +24,20 @@ export async function POST(request) {
     const referralCode = generateReferralCode();
 
     // Insert new user
-    const userId = await new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO users (name, email, password, referral_code, referred_by) VALUES (?, ?, ?, ?, ?)',
-        [name, email, hashedPassword, referralCode, referredBy || null],
-        function(err) {
-          if (err) reject(err);
-          else resolve(this.lastID);
-        }
-      );
+    const userDoc = await addDoc(collection(db, 'users'), {
+      name,
+      email,
+      password: hashedPassword,
+      referralCode,
+      referredBy: referredBy || null,
+      createdAt: serverTimestamp(),
+      isAdmin: false
     });
 
     return NextResponse.json({ 
       message: 'User registered successfully',
       referralCode,
-      userId 
+      userId: userDoc.id 
     }, { status: 201 });
 
   } catch (error) {

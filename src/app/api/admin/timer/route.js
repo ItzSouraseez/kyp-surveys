@@ -5,7 +5,7 @@ import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 // Get current timer settings
 export async function GET(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user || !user.isAdmin) {
@@ -43,7 +43,7 @@ export async function GET(request) {
 // Update timer settings
 export async function POST(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user || !user.isAdmin) {

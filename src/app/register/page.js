@@ -261,7 +261,7 @@ export default function Register() {
       <nav className="navbar">
         <div className="container navbar-content">
           <Link href="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: 'auto' }} />
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
           </Link>
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>

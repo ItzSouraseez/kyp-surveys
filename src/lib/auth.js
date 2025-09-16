@@ -1,6 +1,6 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'kyp_survey_secret_key_2024';
 
@@ -21,8 +21,8 @@ export function generateToken(user) {
     { 
       id: user.id, 
       email: user.email, 
-      isAdmin: user.is_admin,
-      referralCode: user.referral_code 
+      isAdmin: user.isAdmin || user.is_admin,
+      referralCode: user.referralCode || user.referral_code 
     },
     JWT_SECRET,
     { expiresIn: '7d' }
@@ -37,7 +37,7 @@ export function verifyToken(token) {
   }
 }
 
-export function getTokenFromRequest(req) {
+export async function getTokenFromRequest(req) {
   console.log('=== getTokenFromRequest Debug ===');
   
   const authHeader = req.headers.get?.('authorization') || req.headers.authorization;
@@ -51,8 +51,8 @@ export function getTokenFromRequest(req) {
   
   // For Next.js App Router, we need to use cookies() from next/headers
   try {
-    const { cookies } = require('next/headers');
-    const cookieStore = cookies();
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
     const tokenCookie = cookieStore.get('token');
     console.log('Cookie store token:', tokenCookie ? 'Found' : 'Not found');
     return tokenCookie?.value || null;

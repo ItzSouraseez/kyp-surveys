@@ -4,7 +4,7 @@ import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 
 export async function POST(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user || !user.isAdmin) {

@@ -1,47 +1,33 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/database';
+import { db } from '../../../../lib/firebase';
+import { collection, doc, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 
 export async function GET(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's referral code and count of people they referred
-    const userData = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT referral_code FROM users WHERE id = ?', 
-        [user.id], 
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
+    // Get user's referral code
+    const userDoc = await getDoc(doc(db, 'users', user.id));
 
-    if (!userData) {
+    if (!userDoc.exists()) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const userData = userDoc.data();
+
     // Count how many users were referred by this user
-    const referralCount = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT COUNT(*) as count FROM users WHERE referred_by = ?', 
-        [userData.referral_code], 
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row.count);
-        }
-      );
-    });
+    const referralQuery = query(collection(db, 'users'), where('referredBy', '==', userData.referralCode));
+    const referralSnapshot = await getDocs(referralQuery);
 
     return NextResponse.json({
-      referralCode: userData.referral_code,
-      referralCount: referralCount
+      referralCode: userData.referralCode,
+      referralCount: referralSnapshot.size
     });
 
   } catch (error) {

@@ -1,23 +1,24 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/database';
+import { db } from '../../../../lib/firebase';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 
 export async function GET(request) {
   try {
-    const questions = await new Promise((resolve, reject) => {
-      db.all('SELECT * FROM survey_questions WHERE is_active = TRUE ORDER BY order_index', (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
+    // Get all questions first, then filter and sort in JavaScript to avoid index requirements
+    const questionsSnapshot = await getDocs(collection(db, 'surveyQuestions'));
 
-    const formattedQuestions = questions.map(q => ({
-      id: q.id,
-      text: q.question_text,
-      type: q.question_type,
-      options: q.options ? JSON.parse(q.options) : null,
-      order: q.order_index
-    }));
+    const formattedQuestions = questionsSnapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        text: doc.data().text,
+        type: doc.data().type,
+        options: doc.data().options,
+        order: doc.data().orderIndex,
+        isActive: doc.data().isActive
+      }))
+      .filter(q => q.isActive === true)
+      .sort((a, b) => a.order - b.order);
 
     return NextResponse.json({ questions: formattedQuestions });
   } catch (error) {
@@ -28,7 +29,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user || !user.isAdmin) {
@@ -57,7 +58,7 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user || !user.isAdmin) {

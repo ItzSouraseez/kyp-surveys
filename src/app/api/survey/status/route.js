@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/database';
+import { db } from '../../../../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 
 export async function GET(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     const user = verifyToken(token);
 
     if (!user) {
@@ -12,22 +13,15 @@ export async function GET(request) {
     }
 
     // Check if user has already submitted the survey
-    const existingSubmission = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT id, submitted_at, is_eligible_for_draw FROM survey_submissions WHERE user_id = ?', 
-        [user.id], 
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
+    const submissionQuery = query(collection(db, 'surveySubmissions'), where('userId', '==', user.id));
+    const submissionSnapshot = await getDocs(submissionQuery);
 
-    if (existingSubmission) {
+    if (!submissionSnapshot.empty) {
+      const submission = submissionSnapshot.docs[0].data();
       return NextResponse.json({
         hasCompleted: true,
-        submissionDate: existingSubmission.submitted_at,
-        isEligibleForDraw: existingSubmission.is_eligible_for_draw
+        submissionDate: submission.submittedAt?.toDate?.() || submission.submittedAt,
+        isEligibleForDraw: submission.isEligibleForDraw
       });
     }
 

@@ -104,7 +104,7 @@ export default function Home() {
       <nav className="navbar">
         <div className="container navbar-content">
           <Link href="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: 'auto' }} />
+            <img src="/KYP Logo.svg" alt="Know Your Plate" style={{ height: '60px', width: '60px' }} />
           </Link>
           <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
             <Link 

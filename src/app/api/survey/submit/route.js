@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import db from '../../../../lib/database';
+import { db } from '../../../../lib/firebase';
+import { collection, addDoc, query, where, getDocs, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { verifyToken, getTokenFromRequest } from '../../../../lib/auth';
 
 export async function POST(request) {
   try {
-    const token = getTokenFromRequest(request);
+    const token = await getTokenFromRequest(request);
     console.log('Token extracted:', token ? 'Found' : 'Not found');
     
     const user = verifyToken(token);
@@ -18,73 +19,41 @@ export async function POST(request) {
     const { responses } = await request.json();
 
     // Check if user has already submitted
-    const existingSubmission = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM survey_submissions WHERE user_id = ?', [user.id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
+    const submissionQuery = query(collection(db, 'surveySubmissions'), where('userId', '==', user.id));
+    const existingSubmissionSnapshot = await getDocs(submissionQuery);
 
-    if (existingSubmission) {
+    if (!existingSubmissionSnapshot.empty) {
       return NextResponse.json({ error: 'Survey already submitted' }, { status: 400 });
     }
 
-    // Start transaction
-    await new Promise((resolve, reject) => {
-      db.run('BEGIN TRANSACTION', (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
+    // Use batch write for atomic operation
+    const batch = writeBatch(db);
+
+    // Create survey submission document
+    const submissionRef = collection(db, 'surveySubmissions');
+    const submissionDoc = await addDoc(submissionRef, {
+      userId: user.id,
+      submittedAt: serverTimestamp(),
+      isEligibleForDraw: true
     });
 
-    try {
-      // Insert survey submission
-      const submissionId = await new Promise((resolve, reject) => {
-        db.run(
-          'INSERT INTO survey_submissions (user_id) VALUES (?)',
-          [user.id],
-          function(err) {
-            if (err) reject(err);
-            else resolve(this.lastID);
-          }
-        );
+    // Add all responses
+    for (const response of responses) {
+      const responseRef = collection(db, 'surveyResponses');
+      await addDoc(responseRef, {
+        userId: user.id,
+        questionId: response.questionId,
+        answer: response.answer,
+        submissionId: submissionDoc.id,
+        createdAt: serverTimestamp()
       });
-
-      // Insert all responses
-      for (const response of responses) {
-        await new Promise((resolve, reject) => {
-          db.run(
-            'INSERT INTO survey_responses (user_id, question_id, answer) VALUES (?, ?, ?)',
-            [user.id, response.questionId, JSON.stringify(response.answer)],
-            function(err) {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
-        });
-      }
-
-      // Commit transaction
-      await new Promise((resolve, reject) => {
-        db.run('COMMIT', (err) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-
-      return NextResponse.json({ 
-        message: 'Survey submitted successfully',
-        submissionId,
-        eligibleForDraw: true
-      });
-
-    } catch (error) {
-      // Rollback on error
-      await new Promise((resolve) => {
-        db.run('ROLLBACK', () => resolve());
-      });
-      throw error;
     }
+
+    return NextResponse.json({ 
+      message: 'Survey submitted successfully',
+      submissionId: submissionDoc.id,
+      eligibleForDraw: true
+    });
 
   } catch (error) {
     console.error('Error submitting survey:', error);
