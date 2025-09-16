@@ -2,101 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import CountdownTimer from '../components/CountdownTimer';
 
 export default function Home() {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-  const [surveyEnded, setSurveyEnded] = useState(false);
-
-  useEffect(() => {
-    const fetchTimerSettings = async () => {
-      try {
-        const response = await fetch('/api/admin/timer', {
-          credentials: 'include'
-        });
-        const data = await response.json();
-        
-        if (response.ok) {
-          const surveyEndDate = new Date(data.endDate);
-          
-          const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = surveyEndDate.getTime() - now;
-
-            if (distance > 0 && data.isActive) {
-              setTimeLeft({
-                days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-                seconds: Math.floor((distance % (1000 * 60)) / 1000)
-              });
-              setSurveyEnded(false);
-            } else {
-              setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-              setSurveyEnded(true);
-            }
-          }, 1000);
-
-          return () => clearInterval(timer);
-        } else {
-          // Fallback to default 7 days if API fails
-          const surveyEndDate = new Date();
-          surveyEndDate.setDate(surveyEndDate.getDate() + 7);
-          
-          const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = surveyEndDate.getTime() - now;
-
-            if (distance > 0) {
-              setTimeLeft({
-                days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-                seconds: Math.floor((distance % (1000 * 60)) / 1000)
-              });
-              setSurveyEnded(false);
-            } else {
-              setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-              setSurveyEnded(true);
-            }
-          }, 1000);
-
-          return () => clearInterval(timer);
-        }
-      } catch (error) {
-        console.error('Error fetching timer settings:', error);
-        // Fallback to default behavior
-        const surveyEndDate = new Date();
-        surveyEndDate.setDate(surveyEndDate.getDate() + 7);
-        
-        const timer = setInterval(() => {
-          const now = new Date().getTime();
-          const distance = surveyEndDate.getTime() - now;
-
-          if (distance > 0) {
-            setTimeLeft({
-              days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-              hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-              minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-              seconds: Math.floor((distance % (1000 * 60)) / 1000)
-            });
-            setSurveyEnded(false);
-          } else {
-            setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-            setSurveyEnded(true);
-          }
-        }, 1000);
-
-        return () => clearInterval(timer);
-      }
-    };
-
-    fetchTimerSettings();
-  }, []);
 
   return (
     <div>
@@ -192,60 +100,32 @@ export default function Home() {
             <strong style={{ color: 'var(--primary-black)' }}> ₹500 Amazon Voucher</strong>
           </p>
           
-          {/* Countdown Timer or Survey Ended Message */}
-          {surveyEnded ? (
-            <div style={{ 
-              backgroundColor: '#f8d7da', 
-              color: '#721c24', 
-              border: '2px solid #f5c6cb',
-              padding: '30px',
-              borderRadius: '12px',
-              marginBottom: '30px'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '20px', textAlign: 'center' }}>⏰</div>
-              <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', textAlign: 'center' }}>
-                Survey Has Ended
-              </h2>
-              <p style={{ fontSize: '18px', textAlign: 'center', marginBottom: '0' }}>
-                Thank you for your interest! The survey submission period has concluded.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="countdown-timer">
-                <div style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>
-                  Survey Ends In:
-                </div>
-                <div className="countdown-display">
-                  {timeLeft.days}d : {timeLeft.hours}h : {timeLeft.minutes}m : {timeLeft.seconds}s
-                </div>
-              </div>
+          {/* Firebase-synced Countdown Timer */}
+          <CountdownTimer />
 
-              <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/register" className="btn btn-primary" style={{ fontSize: '18px', padding: '16px 32px' }}>
-                  Start Survey
-                </Link>
-                <Link href="/login" className="btn btn-secondary" style={{ fontSize: '18px', padding: '16px 32px' }}>
-                  Already Registered?
-                </Link>
-              </div>
-              
-              <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                <p style={{ fontSize: '16px', color: 'var(--dark-gray)', marginBottom: '10px' }}>
-                  Have a referral code? Use this link format:
-                </p>
-                <code style={{ 
-                  backgroundColor: 'var(--light-gray)', 
-                  padding: '8px 12px', 
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  color: 'var(--primary-black)'
-                }}>
-                  {typeof window !== 'undefined' ? window.location.origin : ''}/register?ref=REFERRAL_CODE
-                </code>
-              </div>
-            </>
-          )}
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link href="/register" className="btn btn-primary" style={{ fontSize: '18px', padding: '16px 32px' }}>
+              Start Survey
+            </Link>
+            <Link href="/login" className="btn btn-secondary" style={{ fontSize: '18px', padding: '16px 32px' }}>
+              Already Registered?
+            </Link>
+          </div>
+          
+          <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <p style={{ fontSize: '16px', color: 'var(--dark-gray)', marginBottom: '10px' }}>
+              Have a referral code? Use this link format:
+            </p>
+            <code style={{ 
+              backgroundColor: 'var(--light-gray)', 
+              padding: '8px 12px', 
+              borderRadius: '4px',
+              fontSize: '14px',
+              color: 'var(--primary-black)'
+            }}>
+              {typeof window !== 'undefined' ? window.location.origin : ''}/register?ref=REFERRAL_CODE
+            </code>
+          </div>
         </div>
 
         {/* Features Section */}
