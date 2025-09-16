@@ -64,3 +64,17 @@ export async function getTokenFromRequest(req) {
     return fallbackToken || null;
   }
 }
+
+// Client-side function to get token from cookies
+export function getTokenFromCookies() {
+  if (typeof document === 'undefined') return null;
+  
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'token') {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+}
